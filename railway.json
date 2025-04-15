@@ -1,8 +1,0 @@
-{
-  "build": {
-    "builder": "nixpacks"
-  },
-  "scripts": {
-    "start": "python bot.py"
-  }
-}
