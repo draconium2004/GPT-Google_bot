@@ -2,5 +2,7 @@
   "build": {
     "builder": "nixpacks"
   },
-  "start": "python bot.py"
+  "scripts": {
+    "start": "python bot.py"
+  }
 }
