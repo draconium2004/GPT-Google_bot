@@ -1,0 +1,6 @@
+{
+  "build": {
+    "builder": "nixpacks"
+  },
+  "startCommand": "python bot.py"
+}
