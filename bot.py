@@ -1,4 +1,3 @@
-import openai
 import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
@@ -10,50 +9,18 @@ load_dotenv()
 
 # Read API keys from environment variables
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 
 # Check if all environment variables are set
-if not all([TELEGRAM_TOKEN, OPENAI_API_KEY, GOOGLE_API_KEY, GOOGLE_CSE_ID]):
-    raise ValueError("One or more environment variables are missing!")
-
-# Initialize OpenAI API
-openai.api_key = OPENAI_API_KEY
+if not all([TELEGRAM_TOKEN, GOOGLE_API_KEY, GOOGLE_CSE_ID]):
+    raise ValueError("One or more required environment variables are missing!")
 
 # Function to handle incoming messages
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_input = update.message.text.strip()
-
-    # If the user wants to perform a Google search, detect command-based triggers
-    if user_input.lower().startswith(("search:", "google:", "find:")):
-        query = user_input.split(":", 1)[1].strip()
-        search_results = fetch_google_cse_results(query)
-        await update.message.reply_text(search_results)
-    else:
-        # Otherwise, process the prompt with ChatGPT
-        chat_response = ask_chatgpt(user_input)
-        await update.message.reply_text(chat_response)
-
-# Function to get a ChatGPT response with enhanced error handling
-def ask_chatgpt(prompt):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",  # You can switch to "gpt-3.5-turbo" if preferred
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=150,       # Limits the number of tokens in the response
-            temperature=0.7,      # Controls the randomness of the output
-        )
-        return response.choices[0].message["content"].strip()
-
-    except openai.error.RateLimitError:
-        return "Error: Rate limit exceeded. Please try again later."
-    except openai.error.AuthenticationError:
-        return "Error: Authentication failed. Please check your API key."
-    except openai.error.APIError as e:
-        return f"Error with the OpenAI API: {e}"
-    except Exception as e:
-        return f"An unexpected error occurred: {e}"
+    search_results = fetch_google_cse_results(user_input)
+    await update.message.reply_text(search_results)
 
 # Function to fetch Google Custom Search Engine results
 def fetch_google_cse_results(query):
